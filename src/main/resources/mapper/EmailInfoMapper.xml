@@ -1,0 +1,26 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xyz.chener.jms.ss.mapper.EmailInfoMapper">
+
+
+    <select id="getCountAndSize" resultType="map">
+        select count(id) as ct,IFNULL(SUM(LENGTH(content)),0) as sz from email_info
+        where isdel = 0 and username = #{username} and type=2
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        order by id desc limit 1
+    </select>
+
+
+    <select id="getIdAndSize" resultType="map">
+        select id as id,IFNULL(LENGTH(content),0) as sz from email_info
+        where isdel = 0 and username = #{username} and type=2
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        order by id desc
+    </select>
+
+
+</mapper>
+

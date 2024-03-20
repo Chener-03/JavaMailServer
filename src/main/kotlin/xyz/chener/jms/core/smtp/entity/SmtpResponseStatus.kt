@@ -1,0 +1,32 @@
+package xyz.chener.jms.core.smtp.entity
+
+enum class SmtpResponseStatus(val code: Int, val description: String) {
+    BadCommandSequence(503, "发送命令的顺序不正确。"),
+    CannotVerifyUserWillAttemptDelivery(252, "指定的用户不是本地用户，但接收 SMTP 服务接受了邮件并试图将其传送。"),
+    ClientNotPermitted(454, "客户端未经过身份验证或不允许使用指定的 SMTP 主机发送邮件。"),
+    CommandNotImplemented(502, "SMTP 服务无法实现指定的命令。"),
+    CommandParameterNotImplemented(504, "SMTP 服务无法实现指定的命令参数。"),
+    CommandUnrecognized(500, "SMTP 服务无法识别指定的命令。"),
+    ExceededStorageAllocation(552, "消息太大，无法存储在目标邮箱中。"),
+    GeneralFailure(-1, "事务无法发生。找不到指定的 SMTP 主机时，会收到此错误提示信息。"),
+    HelpMessage(214, "服务返回的帮助消息。"),
+    InsufficientStorage(452, "SMTP 服务没有足够的存储空间来完成该请求。"),
+    LocalErrorInProcessing(451, "SMTP 服务无法完成请求。如果无法解析客户端的 IP 地址（即反向查找失败），则可能出现此错误。如果客户端域已被标识为未经请求的电子邮件（垃圾邮件）的开放中继或开放源，也可能会收到此错误提示信息。"),
+    MailboxBusy(450, "目标邮箱正在使用中。"),
+    MailboxNameNotAllowed(553, "用于指定目标邮箱的语法不正确。"),
+    MailboxUnavailable(550, "目标邮箱找不到或无法访问。"),
+    MustIssueStartTlsFirst(530, "SMTP 服务器配置为仅接受 TLS 连接，并且 SMTP 客户端正在尝试使用非 TLS 连接进行连接。解决方案是让用户在 SMTP 客户端上设置 EnableSsl = true。"),
+    Ok(250, "电子邮件已成功发送至 SMTP 服务。"),
+    ServiceClosingTransmissionChannel(221, "SMTP 服务正在关闭传输通道。"),
+    ServiceNotAvailable(421, "SMTP 服务不可用；服务器正在关闭传输通道。"),
+    ServiceReady(220, "SMTP 服务已准备就绪。"),
+    StartMailInput(354, "SMTP 服务已准备好接收电子邮件内容。"),
+    SyntaxError(501, "用于指定命令或参数的语法不正确。"),
+    SystemStatus(211, "系统状态或系统帮助回复。"),
+    TransactionFailed(554, "事务失败。"),
+    UserNotLocalTryAlternatePath(551, "用户邮箱不位于接收服务器上。应使用提供的地址信息重新发送。"),
+    WaitUserInputMessage(334, "等待用户输入验证信息。"),
+    UserLoginFail(535, "用户验证失败。"),
+    UserLoginSuccess(235, "用户验证失败。"),
+    UserNotLocalWillForward(251, "用户邮箱不在接收服务器上；服务器会转发该电子邮件。")
+}

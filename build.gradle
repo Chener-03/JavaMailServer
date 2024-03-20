@@ -1,0 +1,78 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
+    id 'maven-publish'
+}
+
+group = 'xyz.chener.jms'
+version = '1.0-SNAPSHOT'
+
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:2.0.11'
+    implementation 'ch.qos.logback:logback-classic:1.4.14'
+
+    implementation 'io.netty:netty-all:4.1.107.Final'
+    implementation 'dnsjava:dnsjava:3.5.3'
+
+    implementation 'com.mysql:mysql-connector-j:8.3.0'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
+
+
+
+    implementation 'com.baomidou:mybatis-plus:3.5.5'
+    implementation 'com.baomidou:mybatis-plus-extension:3.5.5'
+    // mbp依赖spring......
+    implementation 'org.springframework:spring-core:6.1.5'
+    implementation 'org.springframework:spring-tx:6.1.5'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+
+
+
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes(
+                "Manifest-Version": 1.0,
+                'Main-Class': 'xyz.chener.jms.ApplicationMain'
+        )
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory()? it:zipTree(it) }
+    }
+}
+
+
+
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier.set('sources')
+}
+
+publishing {
+    publications {
+        mavenPPP(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+        }
+    }
+
+    println "mavenLocal: ${repositories.mavenLocal().url}"
+
+    repositories {
+        mavenLocal()
+    }
+}
+
