@@ -11,8 +11,6 @@ class CapaPop3Handler:MessageHandler {
         sb.append("Capability list follows\r\n")
         sb.append("TOP\r\n")
         sb.append("USER\r\n")
-        sb.append("UTF8\r\n")
-        sb.append("ID\r\n")
         sb.append("UIDL\r\n")
         sb.append(".")
         return Pop3Response(true,sb.toString(),false)

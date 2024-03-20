@@ -23,12 +23,14 @@ class DataHandler: MessageHandler {
             return SmtpResponse(SmtpResponseStatus.BadCommandSequence,false,"Error: send Rcpt first")
         }
 
+        // 输入开始
         if (session.keepHandle == null){
             session.keepHandle = this
             session.sessionCache[DATA_KEY] = StringBuffer()
             return SmtpResponse(SmtpResponseStatus.StartMailInput,false,"End data with <CR><LF>.<CR><LF>")
         }
 
+        // 输入结束
         if (command?.source == "."){
             session.keepHandle = null
             val data = session.sessionCache[DATA_KEY] as StringBuffer
@@ -44,6 +46,15 @@ class DataHandler: MessageHandler {
 
         val data = session.sessionCache[DATA_KEY] as StringBuffer
         data.append(if (command?.source == null) "" else command.source).append("\r\n")
+
+        //超出大小限制的话
+        if (data.length > session.properties.fileMaxSize){
+            data.setLength(0)
+            session.keepHandle = null
+            session.sessionCache.remove(DATA_KEY)
+            return SmtpResponse(SmtpResponseStatus.ExceededStorageAllocation,false,"Error: message size exceeds fixed maximum message size [${session.properties.fileMaxSize}]")
+        }
+
         return null
     }
 

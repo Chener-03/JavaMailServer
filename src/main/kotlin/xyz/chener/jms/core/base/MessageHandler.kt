@@ -33,6 +33,8 @@ interface MessageHandler {
                 it.add(RcptHandler())
                 it.add(DataHandler())
                 it.add(RsetHandler())
+                it.add(VrfySmtpHandler())
+                it.add(ExpnSmtpHandler())
                 it.add(QuitHandler())
                 return it
             }
