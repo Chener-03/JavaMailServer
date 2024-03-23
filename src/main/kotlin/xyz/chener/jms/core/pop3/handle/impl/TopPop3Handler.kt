@@ -24,7 +24,7 @@ class TopPop3Handler:MessageHandler {
 
         val email = session.properties.mailRepository?.getEmailTopByIndex(session.username!!,index,lines)
 
-        return Pop3Response(true,"lines is \r\n${email}\r\n.",false)
+        return Pop3Response(true,"${email?.first} octets\r\n${email?.second}\r\n.",false)
     }
 
     override fun canProcess(command: CommandData?): Boolean {

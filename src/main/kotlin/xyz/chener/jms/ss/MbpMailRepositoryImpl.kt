@@ -3,16 +3,21 @@ package xyz.chener.jms.ss
 import com.baomidou.mybatisplus.core.toolkit.BeanUtils
 import com.baomidou.mybatisplus.extension.kotlin.KtQueryChainWrapper
 import com.baomidou.mybatisplus.extension.kotlin.KtUpdateChainWrapper
+import jakarta.mail.Session
+import jakarta.mail.internet.MimeMessage
 import xyz.chener.jms.core.smtp.entity.EmailState
 import xyz.chener.jms.core.smtp.entity.EmailType
 import xyz.chener.jms.core.smtp.entity.UserEmail
 import xyz.chener.jms.repositorys.MailRepository
 import xyz.chener.jms.ss.entity.EmailInfo
 import xyz.chener.jms.ss.mapper.EmailInfoMapper
+import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.regex.Pattern
 
 open class MbpMailRepositoryImpl : MailRepository {
+
+    val session: Session = Session.getDefaultInstance(Properties())
 
     private fun relativeIdToAbsoluteId(username: String, id: Int?): Int? {
         id ?: return null
@@ -96,39 +101,49 @@ open class MbpMailRepositoryImpl : MailRepository {
         return null
     }
 
-    override fun getEmailTopByIndex(username: String, index: Int, lines: Int): String? {
+    override fun getEmailTopByIndex(username: String, index: Int, lines: Int): Pair<Int?,String?>? {
         val aid = relativeIdToAbsoluteId(username, index)
         val emailInfoMapper = SessionUtils.instance.getMapper(EmailInfoMapper::class.java)
         val e = emailInfoMapper.selectById(aid)
-        return findTitleBody(e?.content)
+
+        return Pair(e.content?.length, findTitleBody(e.content,lines))
     }
 
 
     private fun findContentSubject(content:String?):String?{
         content?:return null
-        val pattern = Pattern.compile("Subject: (.*)")
-        val matcher = pattern.matcher(content)
-        if (matcher.find()){
-            return base64ToString(matcher.group(1))
+        try {
+            val message = MimeMessage(session, ByteArrayInputStream(content.toByteArray()))
+            return message.subject
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            return null
         }
-        return null
     }
 
-    private fun base64ToString(str:String):String{
-        // =?utf-8?B?6YKu5Lu2MQ==?=
-        val pattern = Pattern.compile("=\\?utf-8\\?B\\?(.*)\\?=")
-        val matcher = pattern.matcher(str)
-        if (matcher.find()){
-            val decode = Base64.getDecoder().decode(matcher.group(1))
-            return String(decode)
-        }
-        return str
-    }
 
-    private fun findTitleBody(content: String?): String? {
-        if (content == null) return null
-        val i = content.indexOf("\n\n")
-        return if (i == -1) content else content.substring(0,i + 2)
+    private fun findTitleBody(content: String?,bodyLine:Int = 0): String? {
+        content ?: return null
+        try {
+            val message = MimeMessage(session, ByteArrayInputStream(content.toByteArray()))
+            val sb = StringBuilder()
+            message.allHeaderLines.asIterator().forEach {
+                sb.append(it).append("\r\n")
+            }
+
+            if (bodyLine>0){
+                String(message.rawInputStream.readAllBytes()).lines().forEachIndexed { index, s ->
+                    if (index<bodyLine){
+                        sb.append(s).append("\r\n")
+                    }
+                }
+            }
+
+            return sb.toString()
+        }catch (ex:Exception){
+            ex.printStackTrace()
+            return null
+        }
     }
 
 }

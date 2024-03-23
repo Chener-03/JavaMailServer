@@ -12,7 +12,6 @@ class MailHandler : MessageHandler {
 
     companion object {
         const val MAIL_KEY_ADDR = "xyz.chener.jms.core.smtp.handle.impl.MailHandler.MAIL_ADDR"
-        const val MAIL_KEY_SIZE = "xyz.chener.jms.core.smtp.handle.impl.MailHandler.MAIL_SIZE"
     }
 
 
@@ -22,40 +21,50 @@ class MailHandler : MessageHandler {
         }
 
         if (command?.param == null) {
-            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax")
+            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax 0x59612")
         }
 
         // MAIL FROM:<chener0354@163.com> [SIZE=123456]  ---->  chener0354@163.com
         if (!command.param.trim().startsWith("FROM:")) {
-            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax")
+            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax 0x1265437")
         }
 
         var emailAddressString : String? = null
         var emailSize : Int? = null
 
-        command.param.trim().split(" ").forEachIndexed{ _, s ->
+
+        if (command.param.trim().startsWith("FROM:")) {
             runCatching {
-                if (s.startsWith("FROM:")){
-                    emailAddressString = s.substring(s.indexOf("<")+1,s.indexOf(">"))
-                }
-                if (s.startsWith("[SIZE=")){
-                    emailSize = s.substring(s.indexOf("[SIZE=")+1,s.indexOf("]")).toInt()
-                }
+                val left = command.param.trim().indexOf("<", 0, false)
+                val right = command.param.trim().indexOf(">", left, false)
+                emailAddressString = command.param.substring(left + 1, right)
+            }
+            runCatching {
+                val left = command.param.trim().indexOf("[SIZE=", 0, false)
+                val right = command.param.trim().indexOf("]", left, false)
+                emailSize = command.param.substring(left + 6, right).toInt()
             }
         }
 
+        emailSize?.let {
+            if (it > session.properties.fileMaxSize){
+                return SmtpResponse(SmtpResponseStatus.ExceededStorageAllocation,false,"Error: message size exceeds fixed maximum message size [${session.properties.fileMaxSize}]")
+            }
+        }
+
+
         if (emailAddressString.isNullOrBlank()){
-            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax")
+            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax 0x749613")
         }
 
         val parseEmailAddr = CommonUtils.parseEmailAddr(emailAddressString!!) ?: return SmtpResponse(
             SmtpResponseStatus.CommandUnrecognized,
             false,
-            " Error: bad syntax"
+            " Error: bad syntax 0x7146574"
         )
 
         if (!CommonUtils.checkDomain(parseEmailAddr.domain) || parseEmailAddr.username.isBlank()){
-            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax")
+            return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax 0x159761")
         }
 
         // 如果登录过 代表是发送给其它 from必须是登录的用户
@@ -64,9 +73,6 @@ class MailHandler : MessageHandler {
         }
 
         session.sessionCache[MAIL_KEY_ADDR] = emailAddressString!!
-        emailSize?.let {
-            session.sessionCache[MAIL_KEY_SIZE] = emailSize!!
-        }
 
         return SmtpResponse(SmtpResponseStatus.Ok,false,"Mail OK")
     }

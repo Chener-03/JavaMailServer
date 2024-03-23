@@ -9,7 +9,6 @@ import xyz.chener.jms.core.smtp.entity.SmtpResponseStatus
 class RsetHandler : MessageHandler {
     override fun handleSmtp(session: SmtpClient, command: CommandData?): SmtpResponse {
         session.sessionCache.remove(MailHandler.MAIL_KEY_ADDR)
-        session.sessionCache.remove(MailHandler.MAIL_KEY_SIZE)
         session.sessionCache.remove(RcptHandler.RCPT_KEY_DATA)
 
         return SmtpResponse(SmtpResponseStatus.Ok,false,"OK Rset")

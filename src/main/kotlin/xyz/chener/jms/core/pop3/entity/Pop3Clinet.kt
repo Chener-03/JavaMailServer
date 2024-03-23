@@ -1,6 +1,7 @@
 package xyz.chener.jms.core.pop3.entity
 
 import io.netty.channel.ChannelHandlerContext
+import xyz.chener.jms.core.base.MessageHandler
 import java.util.concurrent.locks.ReentrantLock
 
 data class Pop3Clinet (
@@ -28,4 +29,7 @@ data class Pop3Clinet (
 
     // 处理器数据缓存
     val sessionCache:MutableMap<String,Any> = HashMap(),
+
+    // 当前是否被某处理器保持会话
+    var keepHandle: MessageHandler? = null,
 )

@@ -31,7 +31,7 @@ class NoopMailRepositoryImpl : MailRepository {
         return null
     }
 
-    override fun getEmailTopByIndex(username: String, index: Int, lines: Int): String? {
+    override fun getEmailTopByIndex(username: String, index: Int, lines: Int): Pair<Int?,String?>? {
         return null
     }
 }

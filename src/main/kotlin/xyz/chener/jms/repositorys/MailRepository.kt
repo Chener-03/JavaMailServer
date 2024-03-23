@@ -24,6 +24,6 @@ interface MailRepository {
 
     fun getEmailById(username: String, id: Int): UserEmail?
 
-    fun getEmailTopByIndex(username: String, index: Int, lines: Int): String?
+    fun getEmailTopByIndex(username: String, index: Int, lines: Int): Pair<Int?,String?>?
 
 }

@@ -76,6 +76,10 @@ class Pop3DispatchHandle(private val pop3ServerProperties: Pop3ServerProperties)
 
 
     override fun getResp(client: Pop3Clinet,source:String):Pop3Response?{
+        if (client.keepHandle != null){
+            return syncGetResp(client, CommandData(null,null,source))
+        }
+
         val cmdPair = CommandHandleManager.spiltByFirstSpace(source)
         log.info("cmd:${cmdPair?.first}   msg:${cmdPair?.second}   source:$source")
         return syncGetResp(client, CommandData(cmdPair?.first,cmdPair?.second,source))
@@ -84,7 +88,11 @@ class Pop3DispatchHandle(private val pop3ServerProperties: Pop3ServerProperties)
     private fun syncGetResp(client: Pop3Clinet, cmd:CommandData):Pop3Response?{
         return if (client.lock.tryLock(1, TimeUnit.MINUTES)) {
             try {
-                commandHandleManager.getHandle(cmd).handlePop3(client, cmd)
+                if (client.keepHandle != null){
+                    client.keepHandle!!.handlePop3(client, cmd)
+                }else{
+                    commandHandleManager.getHandle(cmd).handlePop3(client, cmd)
+                }
             }finally {
                 client.lock.unlock()
             }
@@ -96,7 +104,10 @@ class Pop3DispatchHandle(private val pop3ServerProperties: Pop3ServerProperties)
 
 
     override fun processResp(resp: Pop3Response?, ctx: ChannelHandlerContext){
-        if (resp?.success != null || resp?.msg != null){
+        if (resp?.source != null){
+            ctx.channel().writeAndFlush(resp.source)
+        }
+        else if (resp?.success != null || resp?.msg != null){
             if (resp.getStatusText() != null){
                 println("${resp.getStatusText()} ${resp.msg}")
                 ctx.channel().writeAndFlush("${resp.getStatusText()} ${resp.msg}")
