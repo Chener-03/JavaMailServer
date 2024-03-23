@@ -154,6 +154,6 @@ class DefaultMailServiceImpl(val mailSender: SmtpMailSender,var mailRepository: 
             mailRepository?.save(userEmailList)
         }
 
-        return SmtpResponse(SmtpResponseStatus.Ok,true,"Mail send success")
+        return SmtpResponse(SmtpResponseStatus.Ok,false,"Mail send success")
     }
 }
