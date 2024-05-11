@@ -11,6 +11,8 @@
 -Dusername="用户名" 
 -Dpassword="密码" 
 -Ddomain="邮箱域名"
+-Dssl.cert="证书"
+-Dssl.key="证书"
 
 建表语句在 create_table.sql 中
 
