@@ -35,6 +35,7 @@ interface MessageHandler {
                 it.add(RsetHandler())
                 it.add(VrfySmtpHandler())
                 it.add(ExpnSmtpHandler())
+                it.add(SslHandler())
                 it.add(QuitHandler())
                 return it
             }
@@ -53,6 +54,7 @@ interface MessageHandler {
                 it.add(StatPop3Handler())
                 it.add(UidlPop3Handler())
                 it.add(TopPop3Handler())
+                it.add(SslPop3Handler())
                 it.add(CapaPop3Handler())
                 return it
             }

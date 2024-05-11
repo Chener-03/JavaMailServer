@@ -2,6 +2,7 @@ package xyz.chener.jms.core.base
 
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
+import xyz.chener.jms.common.ChannelContextHolder
 
 abstract class BaseDispatchHandle<CLIENT,RESPONSE>(protected var commandHandleManager: CommandHandleManager)
     : ChannelInboundHandlerAdapter() {
@@ -14,8 +15,15 @@ abstract class BaseDispatchHandle<CLIENT,RESPONSE>(protected var commandHandleMa
     }
 
     override fun channelRead(ctx: ChannelHandlerContext, msg: Any){
-        if (msg is String && clients[ctx.channel().id().asLongText()] != null){
-            channelReadString(ctx,msg)
+        try {
+            ChannelContextHolder.set(ctx)
+
+            if (msg is String && clients[ctx.channel().id().asLongText()] != null){
+                channelReadString(ctx,msg)
+            }
+
+        }finally {
+            ChannelContextHolder.remove()
         }
     }
 

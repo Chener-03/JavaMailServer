@@ -2,9 +2,10 @@ package xyz.chener.jms.core.smtp.service.impl
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import xyz.chener.jms.core.pop3.service.AuthPop3Service
 import xyz.chener.jms.core.smtp.service.AuthService
 
-class DefaultAuthServiceImpl : AuthService {
+class DefaultAuthServiceImpl : AuthService,AuthPop3Service {
 
     private val log: Logger = LoggerFactory.getLogger(DefaultAuthServiceImpl::class.java)
 

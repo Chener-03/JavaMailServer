@@ -21,6 +21,7 @@ class HeloHandler: MessageHandler {
             pre.append("250-mail\r\n")
             pre.append("250-AUTH LOGIN\r\n")
             pre.append("250-AUTH=LOGIN\r\n")
+            if (SslHandler.support()) pre.append("250-STARTTLS\r\n")
             pre.append("250-coremail ${UUID.randomUUID()}")
             return SmtpResponse(SmtpResponseStatus.Ok,false,"8BITMIME", perMessage = pre.toString())
         }

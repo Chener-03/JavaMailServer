@@ -53,7 +53,7 @@ class Pop3DispatchHandle(private val pop3ServerProperties: Pop3ServerProperties)
             ,pop3ServerProperties
         )
 
-        println("pop3 ip:${client.ipAddress}")
+        log.info("pop3 ip:${client.ipAddress}")
         clients[ctx.channel().id().asLongText()] = client
 
         val response = syncGetResp(client, CommandData(CONNECT_INIT_COMMAND,null, CONNECT_INIT_COMMAND))
@@ -116,6 +116,7 @@ class Pop3DispatchHandle(private val pop3ServerProperties: Pop3ServerProperties)
             }
         }
 
+        resp?.doLast?.run()
         if (resp?.kickClient == true){
             ctx.channel().close()
         }

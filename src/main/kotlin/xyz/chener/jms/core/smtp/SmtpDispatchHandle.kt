@@ -47,7 +47,7 @@ open class SmtpDispatchHandle(val serverProperties: SmtpServerProperties)
             ,ReentrantLock()
             ,serverProperties
         )
-        println("ip:${client.ipAddress}")
+        log.info("smtp ip:${client.ipAddress}")
         clients[ctx.channel().id().asLongText()] = client
         val response = syncGetResp(client, CommandData(CONNECT_INIT_COMMAND,null,CONNECT_INIT_COMMAND))
         processResp(response,ctx)
@@ -105,6 +105,7 @@ open class SmtpDispatchHandle(val serverProperties: SmtpServerProperties)
         resp?.postMessage?.let {
             ctx.channel().writeAndFlush("${resp.postMessage}")
         }
+        resp?.doLast?.run()
         if (resp?.kickClient == true){
             ctx.channel().close()
         }

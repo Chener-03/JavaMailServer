@@ -4,7 +4,8 @@ data class Pop3Response(
     val success:Boolean?,
     val msg:String?,
     val kickClient:Boolean,
-    val source:String? = null
+    val source:String? = null,
+    val doLast:Runnable? = null
 ){
     fun getStatusText():String?{
         success?.let {

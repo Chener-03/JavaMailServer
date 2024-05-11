@@ -12,6 +12,7 @@ class CapaPop3Handler:MessageHandler {
         sb.append("TOP\r\n")
         sb.append("USER\r\n")
         sb.append("UIDL\r\n")
+        if (SslPop3Handler.support()) sb.append("STLS\r\n")
         sb.append(".")
         return Pop3Response(true,sb.toString(),false)
     }

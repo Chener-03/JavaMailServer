@@ -7,4 +7,5 @@ data class SmtpResponse(
     ,val message:String = ""
     ,val perMessage:String? = null
     ,val postMessage:String? = null
+    ,val doLast:Runnable? = null
 )
