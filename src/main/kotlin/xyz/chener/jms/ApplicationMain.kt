@@ -1,6 +1,8 @@
 package xyz.chener.jms
 
 
+import io.netty.channel.oio.OioEventLoopGroup
+import xyz.chener.jms.common.StringBioClient
 import xyz.chener.jms.core.pop3.Pop3Server
 import xyz.chener.jms.core.pop3.entity.Pop3ServerProperties
 import xyz.chener.jms.core.smtp.SmtpServer
@@ -17,7 +19,16 @@ class ApplicationMain {
         @JvmStatic
         fun main(args: Array<String>) {
 
+            val c = StringBioClient("smtp.163.com", 25)
+
+            val readLine = c.readAllLines(1000)
+            c.writeLine("EHLO A")
+            val readLine2 = c.readAllLines(1000)
             println("PID is ${ProcessHandle.current().pid()}")
+
+            c.close()
+            return
+
 
             Thread.ofPlatform().start {
                 val p = SmtpServerProperties(25,System.getProperty("domain"),1024*1024*10,1000*20,"v1.1", authService = MbpAuthRepo()
