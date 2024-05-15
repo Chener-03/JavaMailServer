@@ -10,6 +10,7 @@ import xyz.chener.jms.core.smtp.service.SmtpMailSender
 import java.net.InetAddress
 import java.net.Socket
 
+@Deprecated(message = "Deprecated", replaceWith = ReplaceWith("DefaultAsyncNettySmtpMailSenderImpl"))
 class DefaultAsyncSmtpMailSenderImpl: SmtpMailSender {
 
     private val log: Logger = LoggerFactory.getLogger(DefaultAsyncSmtpMailSenderImpl::class.java)

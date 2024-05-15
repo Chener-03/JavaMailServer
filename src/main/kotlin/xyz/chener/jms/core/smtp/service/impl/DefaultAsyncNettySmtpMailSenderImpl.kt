@@ -41,23 +41,68 @@ class DefaultAsyncNettySmtpMailSenderImpl : SmtpMailSender {
                 val mx = mxs[0]
 
                 runCatching {
-                    val c = StringBioClient(domain, 25)
+                    val c = StringBioClient(mx.domain, 25)
                     var line = c.readLine()
+                    println(line)
                     CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "220", "无法连接到 ${mx.domain}:25")
+                    println("EHLO ${InetAddress.getLocalHost().hostName}")
                     c.writeLine("EHLO ${InetAddress.getLocalHost().hostName}")
                     line = c.readAllLines(1000)
+                    println(line)
                     if (line.contains("STARTTLS")){
                         c.writeLine("STARTTLS")
+                        println("STARTTLS")
                         line = c.readLine()
+                        println(line)
                         CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "220", "STARTTLS 失败: $line")
                         // 开启ssl
-                        c.ssl()
+                        c.ssl(true)
+                    }
+                    c.writeLine("MAIL FROM:<$from>")
+                    println("MAIL FROM:<$from>")
+                    line = c.readLine()
+                    println(line)
+                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "250", "MAIL FROM 失败: $line")
+
+
+                    userEmailToList.forEach {
+                        c.writeLine("RCPT TO:<${it.to}>")
+                        println("RCPT TO:<${it.to}>")
+                        line = c.readLine()
+                        println(line)
+                        if (CommandHandleManager.spiltByFirstSpace(line)?.first != "250") {
+                            log.error("RCPT TO 失败: $line")
+                            excludeRcptEmailUUID.add(it.uuid)
+                            resultCallBack?.invoke(it.uuid,false,"RCPT TO 失败: $line")
+                        }
+                    }
+
+
+                    c.writeLine("DATA")
+                    println("DATA")
+                    line = c.readLine()
+                    println(line)
+                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "354", "DATA 失败: $line")
+
+                    c.writeLine(content)
+                    c.writeLine("\r\n.")
+                    line = c.readLine()
+                    println(line)
+                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "250", "DATA End 失败: $line")
+
+                    c.writeLine("QUIT")
+                    c.close()
+
+                    userEmailToList.filter { !excludeRcptEmailUUID.contains(it.uuid) }.forEach {
+                        resultCallBack?.invoke(it.uuid,true,null)
                     }
 
                 }.onFailure { ex->
-
+                    log.error("发送邮件失败:",ex)
+                    userEmailToList.filter { !excludeRcptEmailUUID.contains(it.uuid) }.forEach {
+                        resultCallBack?.invoke(it.uuid,false,ex.message)
+                    }
                 }
-
             }
         }
 

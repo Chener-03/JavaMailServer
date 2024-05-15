@@ -7,10 +7,14 @@ import xyz.chener.jms.core.pop3.Pop3Server
 import xyz.chener.jms.core.pop3.entity.Pop3ServerProperties
 import xyz.chener.jms.core.smtp.SmtpServer
 import xyz.chener.jms.core.smtp.entity.SmtpServerProperties
+import xyz.chener.jms.core.smtp.entity.UserEmail
+import xyz.chener.jms.core.smtp.service.MailSendResultListener
+import xyz.chener.jms.core.smtp.service.impl.DefaultAsyncNettySmtpMailSenderImpl
 import xyz.chener.jms.core.smtp.service.impl.DefaultAsyncSmtpMailSenderImpl
 import xyz.chener.jms.core.smtp.service.impl.DefaultMailServiceImpl
 import xyz.chener.jms.ss.MbpAuthRepo
 import xyz.chener.jms.ss.MbpMailRepositoryImpl
+import java.util.Date
 
 
 class ApplicationMain {
@@ -19,20 +23,10 @@ class ApplicationMain {
         @JvmStatic
         fun main(args: Array<String>) {
 
-            val c = StringBioClient("smtp.163.com", 25)
-
-            val readLine = c.readAllLines(1000)
-            c.writeLine("EHLO A")
-            val readLine2 = c.readAllLines(1000)
-            println("PID is ${ProcessHandle.current().pid()}")
-
-            c.close()
-            return
-
 
             Thread.ofPlatform().start {
                 val p = SmtpServerProperties(25,System.getProperty("domain"),1024*1024*10,1000*20,"v1.1", authService = MbpAuthRepo()
-                    , mailService = DefaultMailServiceImpl(DefaultAsyncSmtpMailSenderImpl(),MbpMailRepositoryImpl())
+                    , mailService = DefaultMailServiceImpl(DefaultAsyncNettySmtpMailSenderImpl(),MbpMailRepositoryImpl())
                 )
                 val server = SmtpServer(p)
                 server.start()
