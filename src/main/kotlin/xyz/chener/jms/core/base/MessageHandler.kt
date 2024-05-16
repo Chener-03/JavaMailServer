@@ -1,5 +1,7 @@
 package xyz.chener.jms.core.base
 
+import xyz.chener.jms.core.imap.ImapClient
+import xyz.chener.jms.core.imap.ImapResponse
 import xyz.chener.jms.core.pop3.entity.Pop3Clinet
 import xyz.chener.jms.core.pop3.entity.Pop3Response
 import xyz.chener.jms.core.pop3.handle.impl.*
@@ -15,6 +17,10 @@ interface MessageHandler {
     }
 
     fun handlePop3(session:Pop3Clinet, command: CommandData?): Pop3Response? {
+        return null
+    }
+
+    fun handleImap(session:ImapClient, command: CommandData?): ImapResponse? {
         return null
     }
 
