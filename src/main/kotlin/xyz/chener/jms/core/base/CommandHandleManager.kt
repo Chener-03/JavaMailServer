@@ -20,6 +20,28 @@ class CommandHandleManager (val messageHandlerChain: List<MessageHandler>) {
                 return null
             }
         }
+
+        fun getImapCmd(str: String): CommandData?{
+            runCatching {
+                val firstBlank = str.indexOf(" ")
+                val secondBlank = str.indexOf(" ",firstBlank+1)
+                val uid = str.substring(0,firstBlank)
+
+                val command = if (secondBlank == -1){
+                    str.substring(firstBlank+1)
+                }else{
+                    str.substring(firstBlank+1,secondBlank)
+                }
+
+                var param:String? = null
+                if (secondBlank > -1)
+                    param = str.substring(secondBlank+1)
+                if (uid.isEmpty() || command.isEmpty())
+                    return null
+                return CommandData(command,param,str,uid)
+            }
+            return null
+        }
     }
 
 

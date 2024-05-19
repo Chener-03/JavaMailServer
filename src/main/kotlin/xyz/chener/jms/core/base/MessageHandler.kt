@@ -1,7 +1,10 @@
 package xyz.chener.jms.core.base
 
-import xyz.chener.jms.core.imap.ImapClient
-import xyz.chener.jms.core.imap.ImapResponse
+import xyz.chener.jms.core.imap.entity.ImapClient
+import xyz.chener.jms.core.imap.entity.ImapResponse
+import xyz.chener.jms.core.imap.handle.ImapCapaHandle
+import xyz.chener.jms.core.imap.handle.ImapSslHandle
+import xyz.chener.jms.core.imap.handle.ImapWelcomeHandle
 import xyz.chener.jms.core.pop3.entity.Pop3Clinet
 import xyz.chener.jms.core.pop3.entity.Pop3Response
 import xyz.chener.jms.core.pop3.handle.impl.*
@@ -20,7 +23,7 @@ interface MessageHandler {
         return null
     }
 
-    fun handleImap(session:ImapClient, command: CommandData?): ImapResponse? {
+    fun handleImap(session: ImapClient, command: CommandData?): ImapResponse? {
         return null
     }
 
@@ -62,6 +65,16 @@ interface MessageHandler {
                 it.add(TopPop3Handler())
                 it.add(SslPop3Handler())
                 it.add(CapaPop3Handler())
+                return it
+            }
+        }
+
+
+        fun defaultImapHandleChain():List<MessageHandler>{
+            ArrayList<MessageHandler>().let {
+                it.add(ImapWelcomeHandle())
+                it.add(ImapCapaHandle())
+                it.add(ImapSslHandle())
                 return it
             }
         }

@@ -1,21 +1,25 @@
 package xyz.chener.jms.core.imap.handle
 
 import xyz.chener.jms.core.base.MessageHandler
-import xyz.chener.jms.core.imap.ImapDispatchHandler
 import xyz.chener.jms.core.imap.entity.ImapClient
 import xyz.chener.jms.core.imap.entity.ImapResponse
 import xyz.chener.jms.core.smtp.entity.CommandData
 
-
-class ImapWelcomeHandle:MessageHandler {
-
+class ImapLoginHandle:MessageHandler {
     override fun canProcess(command: CommandData?): Boolean {
-        return command?.command == ImapDispatchHandler.CONNECT_INIT_COMMAND
+        return command?.command != null && command.command.trim() == "LOGIN"
     }
 
-    override fun handleImap(session: ImapClient, command: CommandData?): ImapResponse {
+    override fun handleImap(session: ImapClient, command: CommandData?): ImapResponse? {
+
+
+
+
+
         return ImapResponse(
-            content = "* OK IMAP4 ready",
-            kickClient = false)
+            success = true,
+            message = "completed",
+            kickClient = false,
+            uid = command?.uid)
     }
 }
