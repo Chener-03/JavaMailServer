@@ -1,5 +1,5 @@
 package xyz.chener.jms.core.imap.service
 
-class AuthImapService {
-
+interface AuthImapService {
+    fun login(username:String,password:String):Boolean
 }

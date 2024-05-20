@@ -2,9 +2,7 @@ package xyz.chener.jms.core.base
 
 import xyz.chener.jms.core.imap.entity.ImapClient
 import xyz.chener.jms.core.imap.entity.ImapResponse
-import xyz.chener.jms.core.imap.handle.ImapCapaHandle
-import xyz.chener.jms.core.imap.handle.ImapSslHandle
-import xyz.chener.jms.core.imap.handle.ImapWelcomeHandle
+import xyz.chener.jms.core.imap.handle.*
 import xyz.chener.jms.core.pop3.entity.Pop3Clinet
 import xyz.chener.jms.core.pop3.entity.Pop3Response
 import xyz.chener.jms.core.pop3.handle.impl.*
@@ -75,6 +73,8 @@ interface MessageHandler {
                 it.add(ImapWelcomeHandle())
                 it.add(ImapCapaHandle())
                 it.add(ImapSslHandle())
+                it.add(ImapNoopHandle())
+                it.add(ImapLoginHandle())
                 return it
             }
         }
