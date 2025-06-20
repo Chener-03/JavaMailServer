@@ -75,6 +75,8 @@ interface MessageHandler {
                 it.add(ImapSslHandle())
                 it.add(ImapNoopHandle())
                 it.add(ImapLoginHandle())
+                it.add(ImapListHandle())
+                it.add(ImapSelectHandle())
                 return it
             }
         }

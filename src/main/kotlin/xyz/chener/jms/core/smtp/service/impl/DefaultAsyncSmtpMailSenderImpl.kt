@@ -45,7 +45,7 @@ class DefaultAsyncSmtpMailSenderImpl: SmtpMailSender {
                     val writer = socket.getOutputStream().bufferedWriter()
                     val reader = socket.getInputStream().bufferedReader()
                     var response = reader.readLine()
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "220", "无法连接到 ${mx.domain}:25")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "220", "无法连接到 ${mx.domain}:25")
 
                     writer.write("EHLO ${InetAddress.getLocalHost().hostName}\r\n")
                     writer.flush()
@@ -54,13 +54,13 @@ class DefaultAsyncSmtpMailSenderImpl: SmtpMailSender {
                         response = reader.readLine()
                     }
                     println(response)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "250", "HELO 失败: $response")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "250", "HELO 失败: $response")
 
                     writer.write("MAIL FROM:<$from>\r\n")
                     writer.flush()
                     response = reader.readLine()
                     println(response)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "250", "MAIL FROM 失败: $response")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "250", "MAIL FROM 失败: $response")
 
 
                     userEmailToList.forEach {
@@ -79,7 +79,7 @@ class DefaultAsyncSmtpMailSenderImpl: SmtpMailSender {
                     writer.flush()
                     response = reader.readLine()
                     println(response)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "354", "DATA Start 失败: $response")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "354", "DATA Start 失败: $response")
 
                     writer.write(content)
                     writer.flush()
@@ -87,7 +87,7 @@ class DefaultAsyncSmtpMailSenderImpl: SmtpMailSender {
                     writer.flush()
                     response = reader.readLine()
                     println(response)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "250", "DATA End 失败: $response")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(response)?.first == "250", "DATA End 失败: $response")
 
                     writer.write("QUIT\r\n")
                     writer.flush()

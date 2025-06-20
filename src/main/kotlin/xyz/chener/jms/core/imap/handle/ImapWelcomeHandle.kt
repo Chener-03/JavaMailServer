@@ -15,7 +15,8 @@ class ImapWelcomeHandle:MessageHandler {
 
     override fun handleImap(session: ImapClient, command: CommandData?): ImapResponse {
         return ImapResponse(
-            content = "* OK IMAP4 ready",
+            success = true,
+            message = "IMAP4 ready",
             kickClient = false)
     }
 }

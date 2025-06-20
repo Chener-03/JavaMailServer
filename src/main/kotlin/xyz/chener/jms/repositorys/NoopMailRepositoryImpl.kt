@@ -1,5 +1,7 @@
 package xyz.chener.jms.repositorys
 
+import xyz.chener.jms.core.imap.entity.ImapEmails
+import xyz.chener.jms.core.imap.entity.ImapFolder
 import xyz.chener.jms.core.smtp.entity.UserEmail
 
 class NoopMailRepositoryImpl : MailRepository {
@@ -33,5 +35,30 @@ class NoopMailRepositoryImpl : MailRepository {
 
     override fun getEmailTopByIndex(username: String, index: Int, lines: Int): Pair<Int?,String?>? {
         return null
+    }
+
+    override fun imapListDirectory(username: String): List<ImapFolder> {
+        return emptyList()
+    }
+
+    override fun selectOneFolder(
+        username: String,
+        folder: String
+    ): ImapFolder? {
+        TODO("Not yet implemented")
+    }
+
+    override fun selectListByFolder(
+        username: String,
+        fid: Int
+    ): List<ImapEmails> {
+        TODO("Not yet implemented")
+    }
+
+    override fun createFolder(
+        username: String,
+        folder: String
+    ): ImapFolder? {
+        TODO("Not yet implemented")
     }
 }

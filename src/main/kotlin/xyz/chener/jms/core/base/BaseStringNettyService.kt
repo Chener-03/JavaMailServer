@@ -5,7 +5,20 @@ import io.netty.channel.Channel
 import io.netty.channel.ChannelInitializer
 import io.netty.channel.ChannelOption
 import io.netty.channel.ChannelPipeline
+import io.netty.channel.IoEventLoopGroup
+import io.netty.channel.IoHandler
+import io.netty.channel.IoHandlerFactory
+import io.netty.channel.MultiThreadIoEventLoopGroup
+import io.netty.channel.MultithreadEventLoopGroup
+import io.netty.channel.epoll.Epoll
+import io.netty.channel.epoll.EpollIoHandler
+import io.netty.channel.epoll.EpollServerSocketChannel
+import io.netty.channel.kqueue.KQueue
+import io.netty.channel.kqueue.KQueueIoEvent
+import io.netty.channel.kqueue.KQueueIoHandler
+import io.netty.channel.kqueue.KQueueServerSocketChannel
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.nio.NioIoHandler
 import io.netty.channel.socket.SocketChannel
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.LineBasedFrameDecoder
@@ -15,9 +28,9 @@ import xyz.chener.jms.common.StringCRLFHandler
 
 abstract class BaseStringNettyService(val port:Int,val maxLineSize:Int) {
 
-    protected val bossGroup = NioEventLoopGroup(1)
+    protected var bossGroup :IoEventLoopGroup ? = null
 
-    protected val workGroup = NioEventLoopGroup(5)
+    protected var workGroup :IoEventLoopGroup ? = null
 
     protected var channel : Channel? = null
 
@@ -26,10 +39,43 @@ abstract class BaseStringNettyService(val port:Int,val maxLineSize:Int) {
     abstract fun onServerStart(success:Boolean,errMsg:String?)
 
     fun start(){
+
+        bossGroup = MultiThreadIoEventLoopGroup(
+            1,
+            Thread.ofPlatform().factory(),
+            if (KQueue.isAvailable()) {
+                KQueueIoHandler.newFactory()
+            } else if (Epoll.isAvailable()) {
+                EpollIoHandler.newFactory()
+            } else {
+                NioIoHandler.newFactory()
+            }
+        )
+
+        workGroup = MultiThreadIoEventLoopGroup(
+            10,
+            Thread.ofVirtual().factory(),
+            if (KQueue.isAvailable()) {
+                KQueueIoHandler.newFactory()
+            } else if (Epoll.isAvailable()) {
+                EpollIoHandler.newFactory()
+            } else {
+                NioIoHandler.newFactory()
+            }
+        )
+
+        val chanelClass = if (KQueue.isAvailable()) {
+            KQueueServerSocketChannel::class.java
+        } else if (Epoll.isAvailable()) {
+            EpollServerSocketChannel::class.java
+        } else {
+            NioServerSocketChannel::class.java
+        }
+
         try {
             val bootstrap : ServerBootstrap = ServerBootstrap()
                 .group(bossGroup, workGroup)
-                .channel(NioServerSocketChannel::class.java)
+                .channel(chanelClass)
                 .childHandler(object : ChannelInitializer<SocketChannel>() {
                     override fun initChannel(socketChannel: SocketChannel) {
                         val pipeline = socketChannel.pipeline()

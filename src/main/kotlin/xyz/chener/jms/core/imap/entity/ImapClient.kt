@@ -16,5 +16,7 @@ class ImapClient(
 
     val properties: ImapServerProperties,
 
-    var username:String? = null
+    var username:String? = null,
+
+    var currentFolder:String? = null
 )

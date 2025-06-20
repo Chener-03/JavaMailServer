@@ -1,13 +1,16 @@
 package xyz.chener.jms.ss
 
 import com.baomidou.mybatisplus.extension.kotlin.KtQueryChainWrapper
+import xyz.chener.jms.core.imap.service.AuthImapService
 import xyz.chener.jms.core.pop3.service.AuthPop3Service
 import xyz.chener.jms.core.smtp.service.AuthService
 import xyz.chener.jms.ss.entity.UserInfo
 import xyz.chener.jms.ss.mapper.UserInfoMapper
 
-class MbpAuthRepo : AuthPop3Service,AuthService {
+class MbpAuthRepo : AuthPop3Service,AuthService, AuthImapService {
     override fun doLogin(username: String?, password: String?): Boolean {
+        return true
+
         val userInfoMapper = SessionUtils.instance.getMapper(UserInfoMapper::class.java)
         val count = KtQueryChainWrapper(userInfoMapper, UserInfo::class.java)
             .eq(UserInfo::username, username)

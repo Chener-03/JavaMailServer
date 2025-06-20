@@ -1,6 +1,8 @@
 package xyz.chener.jms.core.imap
 
 import io.netty.channel.ChannelHandlerContext
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import xyz.chener.jms.core.base.BaseDispatchHandle
 import xyz.chener.jms.core.base.CommandHandleManager
 import xyz.chener.jms.core.imap.entity.ImapClient
@@ -13,10 +15,12 @@ import xyz.chener.jms.core.pop3.entity.Pop3Response
 import xyz.chener.jms.core.smtp.entity.CommandData
 import java.net.InetSocketAddress
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.math.log
 
 class ImapDispatchHandler(val imapServerProperties: ImapServerProperties)
     : BaseDispatchHandle<ImapClient, ImapResponse>(commandHandleManager = CommandHandleManager(imapServerProperties.messageHandle)) {
 
+    private val log : Logger = LoggerFactory.getLogger(ImapDispatchHandler::class.java)
 
 
     companion object{
@@ -25,13 +29,12 @@ class ImapDispatchHandler(val imapServerProperties: ImapServerProperties)
 
 
     init {
-
         Thread.ofVirtual().start {
             while (true){
                 val now = System.currentTimeMillis()
                 clients.forEach { (k, v) ->
                     if (now - v.lastActiveTime > imapServerProperties.timeout){
-                        processResp(ImapResponse(kickClient = true, content = "* Timeout"),v.ctx)
+                        processResp(ImapResponse(kickClient = true, success = false ,message = "* Timeout"),v.ctx)
                     }
                 }
                 Thread.sleep(1000)
@@ -69,42 +72,32 @@ class ImapDispatchHandler(val imapServerProperties: ImapServerProperties)
 
     override fun getResp(client: ImapClient, source: String): ImapResponse? {
 
-        val imapCmd = CommandHandleManager.getImapCmd(source) ?: return ImapResponse(kickClient = false, content = "* BAD invalid command")
+        val imapCmd = CommandHandleManager.getImapCmd(source) ?:
+        return ImapResponse(kickClient = false, success = false, message = "Parse command error")
 
-        return commandHandleManager.getHandle(imapCmd).handleImap(client,imapCmd)
+        try {
+            return commandHandleManager.getHandle(imapCmd).handleImap(client,imapCmd)
+        }catch (ex:Exception){
+            log.error("Handle command error",ex)
+            return ImapResponse(kickClient = false, success = false, message = "Handle command error")
+        }
     }
-
-/*
-OK IMAP4 ready
-a CAPABILITY
-* CAPABILITY IMAP4rev1 XLIST SPECIAL-USE LITERAL+ STARTTLS APPENDLIMIT=71680000 XAPPLEPUSHSERVICE UIDPLUS X-CM-EXT-1 SASL-IR AUTH=PLAIN AUTH=LOGIN AUTH=XOAUTH2 ID STARTTLS
-a OK completed
-b v
-b BAD invalid command
-c starttls
-c OK completed
-* */
 
 
     override fun processResp(resp: ImapResponse?, ctx: ChannelHandlerContext) {
-        if (resp?.source != null){
-            ctx.channel().writeAndFlush(resp.source)
-        }else {
-            if (resp?.content?.isNotEmpty() == true){
-                ctx.channel().writeAndFlush(resp.content)
-            }
-
-            if (resp?.success != null){
-                ctx.channel().writeAndFlush(resp.buildEndString())
-            }
-
-            if (resp?.postMessage?.isNotEmpty() == true){
-                ctx.channel().writeAndFlush(resp.postMessage)
-            }
+        if (resp == null) {
+            return
         }
 
-        resp?.doLast?.invoke()
-        if (resp?.kickClient == true){
+        if (resp.isRawData){
+            ctx.channel().writeAndFlush(resp.rawContent)
+        }else {
+            ctx.channel().writeAndFlush(resp.buildEndString())
+        }
+
+        resp.doLast?.invoke()
+
+        if (resp.kickClient){
             ctx.channel().close()
         }
     }

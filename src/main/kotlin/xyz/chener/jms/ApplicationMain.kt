@@ -45,12 +45,15 @@ class ApplicationMain {
                         }*/
 
             Thread.ofPlatform().start{
-                val p = ImapServerProperties(143,1024*1024*10,1000*20)
+                val p = ImapServerProperties(143,
+                    1024*1024*10,
+                    1000*60,
+                    authImapService = MbpAuthRepo(),
+                    mailRepository = MbpMailRepositoryImpl()
+                )
                 val server = ImapServer(p)
                 server.start()
             }
-
-
         }
     }
 }

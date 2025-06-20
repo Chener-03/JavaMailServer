@@ -52,7 +52,7 @@ class CommonUtils {
             return domain.matches(Regex("^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,}(?:\\.[a-zA-Z]{2})?\$"))
         }
 
-        fun AssertState(condition: Boolean, message: String) {
+        fun assertState(condition: Boolean, message: String) {
             if (!condition) {
                 throw IllegalStateException(message)
             }

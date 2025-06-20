@@ -13,7 +13,7 @@ class ImapNoopHandle:MessageHandler {
     override fun handleImap(session: ImapClient, command: CommandData?): ImapResponse? {
         return ImapResponse(
             success = true,
-            message = "completed",
+            message = "NOOP completed",
             kickClient = false,
             uid = command?.uid)
     }

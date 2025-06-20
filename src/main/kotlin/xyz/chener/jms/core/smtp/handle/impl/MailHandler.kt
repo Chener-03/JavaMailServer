@@ -57,7 +57,7 @@ class MailHandler : MessageHandler {
             return SmtpResponse(SmtpResponseStatus.CommandUnrecognized,false,"Error: bad syntax 0x749613")
         }
 
-        val parseEmailAddr = CommonUtils.parseEmailAddr(emailAddressString!!) ?: return SmtpResponse(
+        val parseEmailAddr = CommonUtils.parseEmailAddr(emailAddressString) ?: return SmtpResponse(
             SmtpResponseStatus.CommandUnrecognized,
             false,
             " Error: bad syntax 0x7146574"
@@ -72,7 +72,7 @@ class MailHandler : MessageHandler {
             return SmtpResponse(SmtpResponseStatus.MailboxNameNotAllowed,false,"Mail from must equal authorized user")
         }
 
-        session.sessionCache[MAIL_KEY_ADDR] = emailAddressString!!
+        session.sessionCache[MAIL_KEY_ADDR] = emailAddressString
 
         return SmtpResponse(SmtpResponseStatus.Ok,false,"Mail OK")
     }

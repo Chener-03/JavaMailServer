@@ -7,6 +7,7 @@ import xyz.chener.jms.core.smtp.entity.CommandData
 
 class ImapCapaHandle:MessageHandler {
 
+
     override fun handleImap(session: ImapClient, command: CommandData?): ImapResponse {
 
         val list = arrayListOf("CAPABILITY", "IMAP4rev1")
@@ -14,10 +15,12 @@ class ImapCapaHandle:MessageHandler {
             list.add("STARTTLS")
         }
 
+        val res = "* ${list.joinToString(" ")}\r\n" +
+                "${command?.uid} OK CAPABILITY completed"
+
         return ImapResponse(
-            content = "* ${list.joinToString(" ")}",
-            success = true,
-            message = "completed",
+            isRawData = true,
+            rawContent = res,
             kickClient = false,
             uid = command?.uid)
     }

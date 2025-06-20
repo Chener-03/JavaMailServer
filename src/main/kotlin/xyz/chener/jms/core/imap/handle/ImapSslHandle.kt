@@ -54,8 +54,13 @@ class ImapSslHandle:MessageHandler {
 
         val engine = ssl.newEngine(context.alloc())
         engine.useClientMode = false
+
+        if (context.pipeline().names().contains(SSL_PIPELINE_HANDLE_NAME)) {
+            return ImapResponse(success = false, message = "tls already start", uid = command?.uid, kickClient = false)
+        }
+
         return ImapResponse(success = true, message = "completed", uid = command?.uid, kickClient = false){
-            context.pipeline().addFirst(SslPop3Handler.SSL_PIPELINE_HANDLE_NAME, SslHandler(engine))
+            context.pipeline().addFirst(SSL_PIPELINE_HANDLE_NAME, SslHandler(engine))
         }
     }
 

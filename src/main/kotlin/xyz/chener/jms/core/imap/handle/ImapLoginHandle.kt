@@ -40,7 +40,7 @@ class ImapLoginHandle:MessageHandler {
 
 
 
-        if (session.properties.authImapService?.login(ea.username,pm[1]) == true){
+        if (session.properties.authImapService?.doLogin(ea.username,pm[1]) == true){
             session.username = ea.username
             return ImapResponse(
                 success = true,

@@ -44,7 +44,7 @@ class DefaultAsyncNettySmtpMailSenderImpl : SmtpMailSender {
                     val c = StringBioClient(mx.domain, 25)
                     var line = c.readLine()
                     println(line)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "220", "无法连接到 ${mx.domain}:25")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "220", "无法连接到 ${mx.domain}:25")
                     println("EHLO ${InetAddress.getLocalHost().hostName}")
                     c.writeLine("EHLO ${InetAddress.getLocalHost().hostName}")
                     line = c.readAllLines(1000)
@@ -54,7 +54,7 @@ class DefaultAsyncNettySmtpMailSenderImpl : SmtpMailSender {
                         println("STARTTLS")
                         line = c.readLine()
                         println(line)
-                        CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "220", "STARTTLS 失败: $line")
+                        CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "220", "STARTTLS 失败: $line")
                         // 开启ssl
                         c.ssl(true)
                     }
@@ -62,7 +62,7 @@ class DefaultAsyncNettySmtpMailSenderImpl : SmtpMailSender {
                     println("MAIL FROM:<$from>")
                     line = c.readLine()
                     println(line)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "250", "MAIL FROM 失败: $line")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "250", "MAIL FROM 失败: $line")
 
 
                     userEmailToList.forEach {
@@ -82,13 +82,13 @@ class DefaultAsyncNettySmtpMailSenderImpl : SmtpMailSender {
                     println("DATA")
                     line = c.readLine()
                     println(line)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "354", "DATA 失败: $line")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "354", "DATA 失败: $line")
 
                     c.writeLine(content)
                     c.writeLine("\r\n.")
                     line = c.readLine()
                     println(line)
-                    CommonUtils.AssertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "250", "DATA End 失败: $line")
+                    CommonUtils.assertState(CommandHandleManager.spiltByFirstSpace(line)?.first == "250", "DATA End 失败: $line")
 
                     c.writeLine("QUIT")
                     c.close()

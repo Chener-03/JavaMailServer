@@ -1,16 +1,25 @@
 package xyz.chener.jms.ss
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper
 import com.baomidou.mybatisplus.core.toolkit.BeanUtils
 import com.baomidou.mybatisplus.extension.kotlin.KtQueryChainWrapper
+import com.baomidou.mybatisplus.extension.kotlin.KtQueryWrapper
 import com.baomidou.mybatisplus.extension.kotlin.KtUpdateChainWrapper
 import jakarta.mail.Session
 import jakarta.mail.internet.MimeMessage
+import xyz.chener.jms.common.CommonUtils
+import xyz.chener.jms.core.imap.entity.ImapEmails
+import xyz.chener.jms.core.imap.entity.ImapFolder
 import xyz.chener.jms.core.smtp.entity.EmailState
 import xyz.chener.jms.core.smtp.entity.EmailType
 import xyz.chener.jms.core.smtp.entity.UserEmail
 import xyz.chener.jms.repositorys.MailRepository
 import xyz.chener.jms.ss.entity.EmailInfo
+import xyz.chener.jms.ss.entity.Emails
+import xyz.chener.jms.ss.entity.Folder
 import xyz.chener.jms.ss.mapper.EmailInfoMapper
+import xyz.chener.jms.ss.mapper.EmailsMapper
+import xyz.chener.jms.ss.mapper.FolderMapper
 import java.io.ByteArrayInputStream
 import java.util.*
 import java.util.regex.Pattern
@@ -110,6 +119,7 @@ open class MbpMailRepositoryImpl : MailRepository {
     }
 
 
+
     private fun findContentSubject(content:String?):String?{
         content?:return null
         try {
@@ -146,4 +156,99 @@ open class MbpMailRepositoryImpl : MailRepository {
         }
     }
 
+
+
+
+    override fun imapListDirectory( username: String): List<ImapFolder> {
+        val mapper = SessionUtils.instance.getMapper(FolderMapper::class.java)
+        val defaultList = mapper.selectList(
+            KtQueryWrapper<Folder>(Folder::class.java)
+                .eq(Folder::default, true)
+        )
+
+
+        val userList = mapper.selectList(
+            KtQueryWrapper<Folder>(Folder::class.java)
+                .eq(Folder::default, false).eq(Folder::username, username)
+        )
+
+        return ArrayList<ImapFolder>().let {
+            it.addAll(defaultList.map {x->
+                ImapFolder(x.folderPath, x.tag, x.default,x.id)
+            }.toList())
+            it.addAll(userList.map {x->
+                ImapFolder(x.folderPath, x.tag, x.default,x.id)
+            }.toList())
+            it
+        }
+    }
+
+
+    override fun selectOneFolder(username: String, folder: String ): ImapFolder? {
+        val fm = SessionUtils.instance.getMapper(FolderMapper::class.java)
+
+        KtQueryChainWrapper<Folder>(fm)
+            .isNull(Folder::username)
+            .eq(Folder::folderPath, CommonUtils.decodeModifiedUTF7(folder))
+            .eq(Folder::default, true)
+           .one()?.let {
+                return ImapFolder(it.folderPath, it.tag, it.default,it.id)
+            }
+
+        KtQueryChainWrapper<Folder>(fm)
+           .eq(Folder::username, username)
+           .eq(Folder::folderPath, CommonUtils.decodeModifiedUTF7(folder))
+           .eq(Folder::default, false)
+           .one()?.let {
+                return ImapFolder(it.folderPath, it.tag, it.default,it.id)
+            }
+        return null
+    }
+
+
+    override fun selectListByFolder(username: String, fid: Int): List<ImapEmails> {
+        val em = SessionUtils.instance.getMapper(EmailsMapper::class.java)
+
+        KtQueryChainWrapper<Emails>(em)
+            .eq(Emails::username, username)
+            .eq(Emails::folderId, fid)
+            .orderByDesc(Emails::id)
+            .list().map {
+                return@map ImapEmails().apply {
+                    org.springframework.beans.BeanUtils.copyProperties(it, this)
+                }
+            }.let {
+                return it
+            }
+    }
+
+
+    override fun createFolder( username: String, folder: String ): ImapFolder? {
+        val fm = SessionUtils.instance.getMapper(FolderMapper::class.java)
+
+        if (KtQueryChainWrapper<Folder>(fm)
+                .isNull(Folder::username)
+                .eq(Folder::folderPath, folder)
+                .eq(Folder::default, true)
+                .exists() ) {
+            return null
+        }
+
+        if (KtQueryChainWrapper<Folder>(fm)
+               .eq(Folder::username, username)
+               .eq(Folder::folderPath, folder)
+               .eq(Folder::default, false)
+               .exists() ) {
+            return null
+        }
+
+        val f = Folder().apply {
+            this.folderPath = folder
+            this.username = username
+            this.default = false
+        }
+
+        fm.insert(f)
+        return ImapFolder(f.folderPath, f.tag, f.default,f.id)
+    }
 }

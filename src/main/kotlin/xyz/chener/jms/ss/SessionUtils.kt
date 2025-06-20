@@ -53,11 +53,11 @@ class SessionUtils private constructor(){
         val mbpConfig = MybatisConfiguration()
         mbpConfig.isMapUnderscoreToCamelCase = true
         mbpConfig.isUseGeneratedKeys = true
-//        mbpConfig.logImpl = StdOutImpl::class.java
+        mbpConfig.logImpl = StdOutImpl::class.java
         val globalConfig = GlobalConfigUtils.getGlobalConfig(mbpConfig)
-        globalConfig.setSqlInjector(DefaultSqlInjector())
-        globalConfig.setIdentifierGenerator(DefaultIdentifierGenerator.getInstance())
-        globalConfig.setSuperMapperClass(BaseMapper::class.java)
+        globalConfig.sqlInjector = DefaultSqlInjector()
+        globalConfig.identifierGenerator = DefaultIdentifierGenerator.getInstance()
+        globalConfig.superMapperClass = BaseMapper::class.java
         this.registryMapperXml(mbpConfig, "mapper/")
         mbpConfig.addMappers("xyz.chener.jms.ss.mapper")
 

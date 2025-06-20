@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import xyz.chener.jms.core.base.BaseStringNettyService
 import xyz.chener.jms.core.imap.entity.ImapServerProperties
 
+
 class ImapServer(private val imapServerProperties: ImapServerProperties) : BaseStringNettyService(imapServerProperties.port,imapServerProperties.fileMaxSize) {
 
     private val log: Logger = LoggerFactory.getLogger(ImapServer::class.java)
@@ -15,6 +16,6 @@ class ImapServer(private val imapServerProperties: ImapServerProperties) : BaseS
     }
 
     override fun onServerStart(success: Boolean, errMsg: String?) {
-
+        log.info("IMAP server start ${if (success) "success" else "failed"} ${errMsg ?: ""}")
     }
 }

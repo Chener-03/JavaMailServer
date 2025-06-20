@@ -97,7 +97,7 @@ open class SmtpDispatchHandle(val serverProperties: SmtpServerProperties)
     override fun processResp(resp:SmtpResponse?, ctx: ChannelHandlerContext){
 
         resp?.perMessage?.let {
-            ctx.channel().writeAndFlush("${resp.perMessage}")
+            ctx.channel().writeAndFlush(resp.perMessage)
         }
         resp?.status?.let{
             ctx.channel().writeAndFlush("${resp.status.code} ${resp.message}")

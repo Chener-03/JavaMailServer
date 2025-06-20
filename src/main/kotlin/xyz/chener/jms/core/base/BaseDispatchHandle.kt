@@ -3,11 +3,12 @@ package xyz.chener.jms.core.base
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.ChannelInboundHandlerAdapter
 import xyz.chener.jms.common.ChannelContextHolder
+import java.util.concurrent.ConcurrentHashMap
 
 abstract class BaseDispatchHandle<CLIENT,RESPONSE>(protected var commandHandleManager: CommandHandleManager)
     : ChannelInboundHandlerAdapter() {
 
-    protected val clients : MutableMap<String, CLIENT> = HashMap()
+    protected val clients : MutableMap<String, CLIENT> = ConcurrentHashMap()
 
 
     override fun channelInactive(ctx: ChannelHandlerContext) {
