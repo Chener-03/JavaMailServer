@@ -184,7 +184,7 @@ open class MbpMailRepositoryImpl : MailRepository {
     }
 
 
-    override fun selectOneFolder(username: String, folder: String ): ImapFolder? {
+    override fun imapSelectOneFolder(username: String, folder: String ): ImapFolder? {
         val fm = SessionUtils.instance.getMapper(FolderMapper::class.java)
 
         KtQueryChainWrapper<Folder>(fm)
@@ -206,7 +206,7 @@ open class MbpMailRepositoryImpl : MailRepository {
     }
 
 
-    override fun selectListByFolder(username: String, fid: Int): List<ImapEmails> {
+    override fun imapSelectListByFolder(username: String, fid: Int): List<ImapEmails> {
         val em = SessionUtils.instance.getMapper(EmailsMapper::class.java)
 
         KtQueryChainWrapper<Emails>(em)
@@ -223,7 +223,7 @@ open class MbpMailRepositoryImpl : MailRepository {
     }
 
 
-    override fun createFolder( username: String, folder: String ): ImapFolder? {
+    override fun imapCreateFolder(username: String, folder: String ): ImapFolder? {
         val fm = SessionUtils.instance.getMapper(FolderMapper::class.java)
 
         if (KtQueryChainWrapper<Folder>(fm)
@@ -250,5 +250,24 @@ open class MbpMailRepositoryImpl : MailRepository {
 
         fm.insert(f)
         return ImapFolder(f.folderPath, f.tag, f.default,f.id)
+    }
+
+
+    override fun imapDeleteFolder(username: String, folder: String) {
+        val fm = SessionUtils.instance.getMapper(FolderMapper::class.java)
+        KtUpdateChainWrapper<Folder>(fm)
+            .isNull(Folder::username)
+            .eq(Folder::folderPath, folder)
+            .eq(Folder::default, true).remove()
+    }
+
+
+    override fun imapRenameFolder(username: String, oldFolder: String, newFolder: String) {
+        val fm = SessionUtils.instance.getMapper(FolderMapper::class.java)
+        KtUpdateChainWrapper<Folder>(fm)
+            .eq(Folder::username, username)
+            .eq(Folder::folderPath, oldFolder)
+            .eq(Folder::default, false)
+            .set(Folder::folderPath, newFolder).update()
     }
 }

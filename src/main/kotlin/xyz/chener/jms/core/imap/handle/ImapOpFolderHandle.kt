@@ -61,7 +61,7 @@ class ImapOpFolderHandle:MessageHandler {
                     kickClient = false,
                 )
             }
-            val createFolder = session.properties.mailRepository!!.createFolder(
+            val createFolder = session.properties.mailRepository!!.imapCreateFolder(
                 session.username!!,
                 CommonUtils.decodeModifiedUTF7(command.param)
             )
@@ -81,15 +81,68 @@ class ImapOpFolderHandle:MessageHandler {
             )
         }
 
-
         if (command.command == "DELETE") {
+            val find = dirs.find { it.path == CommonUtils.decodeModifiedUTF7(command.param) }
+            if (find == null) {
+                return ImapResponse(
+                    success = false,
+                    message = "Folder not found (BAD)",
+                    uid = command.uid,
+                    kickClient = false,
+                )
+            }
+            if (dirs.filter { it.default == true }.map { it.path }
+                    .contains(CommonUtils.decodeModifiedUTF7(command.param))) {
+                return ImapResponse(
+                    success = false,
+                    message = "Cannot delete default folder (BAD)",
+                    uid = command.uid,
+                    kickClient = false,
+                )
+            }
+            session.properties.mailRepository!!.imapDeleteFolder(session.username!!, CommonUtils.decodeModifiedUTF7(command.param))
+            return ImapResponse(
+                success = true,
+                message = "OK",
+                uid = command.uid,
+                kickClient = false,
+            )
+        }
 
+        if (command.command == "RENAME") {
+            val old = CommonUtils.decodeModifiedUTF7(command.param).split(" ")[0]
+            val new = CommonUtils.decodeModifiedUTF7(command.param).split(" ")[1]
+            val find = dirs.find { it.path == old }
+            if (find == null) {
+                return ImapResponse(
+                    success = false,
+                    message = "Folder not found (BAD)",
+                    uid = command.uid,
+                    kickClient = false,
+                )
+            }
+            if (dirs.filter { it.default == true }.map { it.path }
+                   .contains(old)) {
+                return ImapResponse(
+                    success = false,
+                    message = "Cannot rename default folder (BAD)",
+                    uid = command.uid,
+                    kickClient = false,
+                )
+            }
 
+            session.properties.mailRepository!!.imapRenameFolder(session.username!!, old, new)
+            return ImapResponse(
+                success = true,
+                message = "OK",
+                uid = command.uid,
+                kickClient = false,
+            )
         }
 
         return ImapResponse(
             success = false,
-            message = "error command",
+            message = "unknown command",
             uid = command.uid,
             kickClient = false,
         )

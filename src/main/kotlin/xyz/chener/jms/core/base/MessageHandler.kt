@@ -77,6 +77,7 @@ interface MessageHandler {
                 it.add(ImapLoginHandle())
                 it.add(ImapListHandle())
                 it.add(ImapSelectHandle())
+                it.add(ImapOpFolderHandle())
                 return it
             }
         }

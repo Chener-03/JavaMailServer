@@ -38,7 +38,7 @@ class ImapSelectHandle:MessageHandler {
             )
         }
 
-        val folder = session.properties.mailRepository!!.selectOneFolder(session.username!!, command.param.trim())
+        val folder = session.properties.mailRepository!!.imapSelectOneFolder(session.username!!, command.param.trim())
 
         if (folder == null){
             return ImapResponse(
@@ -49,7 +49,7 @@ class ImapSelectHandle:MessageHandler {
             )
         }
 
-        val emails = session.properties.mailRepository!!.selectListByFolder(session.username!!, folder.fid!!)
+        val emails = session.properties.mailRepository!!.imapSelectListByFolder(session.username!!, folder.fid!!)
 
         val exits = emails.size
         val recent = emails.filter { it.flags?.contains("\\Recent") == true }.size

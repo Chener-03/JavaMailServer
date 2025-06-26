@@ -3,8 +3,6 @@ package xyz.chener.jms.repositorys
 import xyz.chener.jms.core.imap.entity.ImapEmails
 import xyz.chener.jms.core.imap.entity.ImapFolder
 import xyz.chener.jms.core.smtp.entity.UserEmail
-import xyz.chener.jms.ss.entity.Emails
-import javax.swing.text.Style
 
 interface MailRepository {
 
@@ -32,9 +30,13 @@ interface MailRepository {
     // imap support
     fun imapListDirectory(username: String): List<ImapFolder>
 
-    fun selectOneFolder(username: String, folder: String): ImapFolder?
+    fun imapSelectOneFolder(username: String, folder: String): ImapFolder?
 
-    fun selectListByFolder(username: String, fid: Int): List<ImapEmails>
+    fun imapSelectListByFolder(username: String, fid: Int): List<ImapEmails>
 
-    fun createFolder(username: String, folder: String): ImapFolder?
+    fun imapCreateFolder(username: String, folder: String): ImapFolder?
+
+    fun imapDeleteFolder(username: String, folder: String)
+
+    fun imapRenameFolder(username: String, oldFolder: String, newFolder: String)
 }

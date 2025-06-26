@@ -41,21 +41,21 @@ class NoopMailRepositoryImpl : MailRepository {
         return emptyList()
     }
 
-    override fun selectOneFolder(
+    override fun imapSelectOneFolder(
         username: String,
         folder: String
     ): ImapFolder? {
         TODO("Not yet implemented")
     }
 
-    override fun selectListByFolder(
+    override fun imapSelectListByFolder(
         username: String,
         fid: Int
     ): List<ImapEmails> {
         TODO("Not yet implemented")
     }
 
-    override fun createFolder(
+    override fun imapCreateFolder(
         username: String,
         folder: String
     ): ImapFolder? {
